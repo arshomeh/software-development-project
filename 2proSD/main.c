@@ -19,7 +19,7 @@ int main (int argc, char** argv){  //Tha einai tis morfis: ./medoids –d <input
 	char	output[SIZEofBUFF];
 	int err = 0;
 	flagd = flagc = flago = 0;
-	
+	printf("test\n");
 	/* diavasma parametron */
 	if (argc%2 == 0){
 		printf("\nIncorrect syntax\n");
