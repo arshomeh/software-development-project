@@ -1,18 +1,5 @@
 #include "../headers.h"
 
-int hamdist(char* a, int nobits, char* b) {
-    int num_mismatches = 0;
-    while (nobits) {
-        if (*a != *b)
-            ++num_mismatches;
-
-        --nobits;
-        ++a;
-        ++b;
-    }
-    return num_mismatches;
-}
-
 int gethamdata(char* data,char *** hamdata,int num){
 	char XXX[SIZEofBUFF];
 	char binary[SIZE];
