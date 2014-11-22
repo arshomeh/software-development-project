@@ -32,7 +32,6 @@ int hamMain(char* data,char * config,char *output,int flag){
 		perror("1:");
 		exit(2);
 	}
-	num = num/50;
     for (i=0; i < num; i++)
         distance[i] = NULL;
     for (i=0; i < num; i++){
@@ -43,7 +42,7 @@ int hamMain(char* data,char * config,char *output,int flag){
 		}
 	}
 	printf("num is %d\n",num);
-	printf("%s\n%d\n",hamdata[1],nobits);
+	//printf("%s\n%d\n",hamdata[1],nobits);
 	for(i = 0;i<num;i++){
 		distance[i][i] = 0;
 		for(j = i+1;j<num;j++){
@@ -52,10 +51,11 @@ int hamMain(char* data,char * config,char *output,int flag){
 		}
 	}
 	/*for(i = 0;i<num;i++){
+		fprintf(fp,"item%d || ",i);
 		for(j = 0;j<num;j++){
-			printf("%d ",distance[i][j]);
+			fprintf(fp,"%d ",distance[i][j]);
 		}
-		printf("\n");
+		fprintf(fp,"\n");
 	}*/
 	fclose(fp);
 	return 0;
