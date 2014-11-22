@@ -9,4 +9,6 @@
 #include <dlfcn.h>
 
 #include "defines.h"
+#include "mainfuns.h"
+#include "cluster.h"
 #endif

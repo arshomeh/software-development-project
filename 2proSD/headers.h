@@ -10,4 +10,8 @@
 
 #include "defines.h"
 #include "mainfuns.h"
+#include "generalfuns.h"
+#include "./Ham/hamfuns.h"
+#include "./Euc/eucfuns.h"
+#include "./Mat/matfuns.h"
 #endif

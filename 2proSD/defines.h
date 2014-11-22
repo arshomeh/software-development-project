@@ -2,6 +2,6 @@
 #define __DEFINE_H__
 #include "headers.h"
 
-#define SIZEofBUFF 20
-
+#define SIZEofBUFF 30
+#define SIZE 70
 #endif
