@@ -1,5 +1,0 @@
-#include "headers.h"
-
-int eucMain(char* data){
-	return 0;
-}
