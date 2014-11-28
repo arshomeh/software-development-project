@@ -1,5 +1,0 @@
-#include "headers.h"
-
-int hamMain(char* data){
-	return 0;
-}

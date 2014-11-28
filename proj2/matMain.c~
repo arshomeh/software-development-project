@@ -1,5 +1,0 @@
-#include "headers.h"
-
-int matMain(char* data){
-	return 0;
-}

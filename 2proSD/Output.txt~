@@ -1,0 +1,52 @@
+Algorithm: I1A2U1, x:{1,2}
+Initialization method Concentrate [Park-Jun]
+Assignment method Reverse-LSH
+Update method "A la Lloyds" [Park-Jun]
+
+CLUSTER-0 {size:287 medoid(id):224
+CLUSTER-1 {size:212 medoid(id):98
+CLUSTER-2 {size:268 medoid(id):469
+CLUSTER-3 {size:233 medoid(id):163
+Clustering time: 200.000000 seconds
+Average dissimilarity given by Silhouettes method:  {s[0]=0.011175, s[1]=0.018561, s[2]=0.010552, s[3]=0.014217, }
+Total average dissimilarity of Dataset is 0.013626
+
+Algorithm: I1A2U1, x:{1,2}
+Initialization method Concentrate [Park-Jun]
+Assignment method Reverse-LSH
+Update method "A la Lloyds" [Park-Jun]
+
+CLUSTER-0 {size:297 medoid(id):224
+CLUSTER-1 {size:231 medoid(id):98
+CLUSTER-2 {size:276 medoid(id):469
+CLUSTER-3 {size:196 medoid(id):606
+Clustering time: 200.000000 seconds
+Average dissimilarity given by Silhouettes method:  {s[0]=0.012196, s[1]=0.017416, s[2]=0.016649, s[3]=0.014184, }
+Total average dissimilarity of Dataset is 0.015111
+
+Algorithm: I1A2U1, x:{1,2}
+Initialization method Concentrate [Park-Jun]
+Assignment method Reverse-LSH
+Update method "A la Lloyds" [Park-Jun]
+
+CLUSTER-0 {size:212 medoid(id):46
+CLUSTER-1 {size:369 medoid(id):239
+CLUSTER-2 {size:208 medoid(id):501
+CLUSTER-3 {size:211 medoid(id):606
+Clustering time: 200.000000 seconds
+Average dissimilarity given by Silhouettes method:  {s[0]=0.019022, s[1]=0.030833, s[2]=0.028425, s[3]=0.011565, }
+Total average dissimilarity of Dataset is 0.022461
+
+Algorithm: I1A2U1, x:{1,2}
+Initialization method Concentrate [Park-Jun]
+Assignment method Reverse-LSH
+Update method "A la Lloyds" [Park-Jun]
+
+CLUSTER-0 {size:204 medoid(id):30
+CLUSTER-1 {size:333 medoid(id):239
+CLUSTER-2 {size:193 medoid(id):501
+CLUSTER-3 {size:270 medoid(id):688
+Clustering time: 200.000000 seconds
+Average dissimilarity given by Silhouettes method:  {s[0]=0.017681, s[1]=0.039106, s[2]=0.018568, s[3]=0.018080, }
+Total average dissimilarity of Dataset is 0.<	
+
