@@ -185,9 +185,9 @@ void printclusters(cluster **clusters,int complarga, char *filep, int iflag, int
 	fprintf(fp, "Algorithm: I%dA%dU%d, x:{1,2}\n", iflag,aflag,uflag);
 	/**a little extra**/
 	if (iflag==1)
-		fprintf(fp, "Initialization method Concentrate [Park-Jun]\n");
+		fprintf(fp, "Initialization method K-means++ [Park-Jun]\n");
 	else if (iflag==2)
-		fprintf(fp, "Initialization method K-means++ [Arthur-Vassilvitskii]\n");
+		fprintf(fp, "Initialization method Concentrate [Arthur-Vassilvitskii]\n");
 	if (aflag==1)
 		fprintf(fp, "Assignment method PAM\n");
 	else if (aflag==2)
@@ -197,7 +197,7 @@ void printclusters(cluster **clusters,int complarga, char *filep, int iflag, int
 	else if (uflag==2)
 		fprintf(fp, "Update method CLARANS [Ng-Han]\n\n");
 	for(k=0;k<clus;k++)
-		fprintf(fp, "CLUSTER-%d {size:%d medoid(id):%d\n", k, (*clusters)[k].idcount,(*clusters)[k].medid);	
+		fprintf(fp, "CLUSTER-%d {size:%d medoid(id):%d}\n", k, (*clusters)[k].idcount,(*clusters)[k].medid);	
 	fprintf(fp, "Clustering time: %f seconds\n", ttime);								
 	fprintf(fp, "Average dissimilarity given by Silhouettes method:  {");
 	for(k=0;k<clus;k++)

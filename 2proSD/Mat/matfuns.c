@@ -1,19 +1,19 @@
 #include "../headers.h"
 
-int getmatdata(char* data,int ***matdata,int num){
+int getmatdata(char* data,double ***matdata,int num){
 	FILE* fp;
 	int i,j;
 	char c;
 	char XXX[SIZEofBUFF];
 	fp = fopen(data,"r");
-	(*matdata) = malloc(num* sizeof(int*));
+	(*matdata) = malloc(num* sizeof(double*));
 	fscanf(fp, "%s %s",XXX,XXX);
 	fscanf(fp,"%s",XXX);
 	while( (c = fgetc( fp )) != '\n' &&  (c != '\t')){
 		//do nothing
 	}
 	for(j = 0;j<num; j++)
-		(*matdata)[j] = malloc(num* sizeof(int));
+		(*matdata)[j] = malloc(num* sizeof(double));
 	
 	int a;
 	for(j = 0;j<num; j++){
@@ -27,7 +27,7 @@ int getmatdata(char* data,int ***matdata,int num){
 }
 
 /**Concentrate initialization method **/
-void concint(int *** distarray, int ** sortconc, int num, int clust){
+int concint(double *** distarray, int ** sortconc, int num, int clust){
 	int sumdist[num];
 	double x;
 	double sumtosort[num][2];
@@ -53,7 +53,7 @@ void concint(int *** distarray, int ** sortconc, int num, int clust){
 		}
 		sumtosort[i][1] = finalsum;
 	}
-	/**bubble sort ta v[i] gia na epistrepsoume */
+	/**sort ta v[i] gia na epistrepsoume */
 	for (i = 0; i < (num-1); i++){
 		for (j = 0; j < (num-i-1); j++){
 			if (sumtosort[j][1] > sumtosort[j+1][1]){
@@ -68,19 +68,18 @@ void concint(int *** distarray, int ** sortconc, int num, int clust){
 	}
 	for(i=0; i<clust; i++)
 		(*sortconc)[i] = sumtosort[i][0];																																																																																																																
-	return;
+	return 2;
 }
 
 /**k-means++ initialization method**/
-void plusplusmat(int *** distarray, int **kinit, int num, int clust){
+int plusplusmat(double *** distarray, int **kinit, int num, int clust){
 	
 	int i,j,k,l,flag0=0;
 	double tt;
 	int distance[num];
 	int prob[num+1];
 	if(((*kinit) = calloc(clust, sizeof(int))) == NULL){
-		perror("conc"); exit(2);}
-		
+		perror("conc"); exit(2);}		
 	/**arxikipoiseis*/
 	(*kinit)[0] = getUniformInt(0,num-1);
 	distance[0] = (*distarray)[(*kinit[0])][0];
@@ -89,7 +88,6 @@ void plusplusmat(int *** distarray, int **kinit, int num, int clust){
 		distance[i] = RAND_MAX;
 		prob[i] = 0;
 	}
-	
 	/**methodos simfona me tin theoria **/
 	for(i=0; i<clust-1; i++){
 		for(j=0; j<num; j++){
@@ -120,15 +118,17 @@ void plusplusmat(int *** distarray, int **kinit, int num, int clust){
 			}
 		}while(flag0 == 1);
 	}	
+	return 1;
 }
 
 /**PAM assignment for Matrix space**/
-void assmat(cluster **clusters,int *** distarray,int clus,int num){
+int assmat(cluster **clusters,double *** distarray,int clus,int num){
 	int i,j;
 	int tempdist,tempid;
 	for (j=0;j<clus;j++){
 			(*clusters)[j].head = CreateItem((*clusters)[j].head);
 	}
+	/** kanei assign simfona me ton algorithmo to kathe simeio sto kontinotero tou medoid*/
 	for (i=0;i<num;i++){
 		tempdist = RAND_MAX;
 		for (j=0;j<clus;j++){
@@ -141,16 +141,17 @@ void assmat(cluster **clusters,int *** distarray,int clus,int num){
 		(*clusters)[tempid].sumdist += tempdist;
 		(*clusters)[tempid].idcount ++;
 	}
-	return;
+	return 1;
 	
 }
 
 /**Update a la Lloyd’s**/
-int alalloydmat(cluster **clusters,int *** distarray,int clus,int num){
+int alalloydmat(cluster **clusters,double *** distarray,int clus,int num){
 	item	*pl1=NULL;
 	item	*pl2=NULL;
 	int i,j,k,tempsum=0, tempmin, tempid;
 	int flag = 0;
+	/** gia kathe cluster, pairnei ena ena ola ta items */
 	for(k = 0;k<clus;k++){
 		pl1 = (*clusters)[k].head;
 		tempid = (*clusters)[k].medid;
@@ -158,6 +159,7 @@ int alalloydmat(cluster **clusters,int *** distarray,int clus,int num){
 		for(i = 0;i<(*clusters)[k].idcount;i++){
 			pl2 = (*clusters)[k].head;
 			tempsum = 0;
+			/** vriskei to item me to elaxisto topiko kostos kai to kanei medoid*/
 			for(j = 0;j<(*clusters)[k].idcount;j++){
 				tempsum += (*distarray)[pl1->itemid][pl2->itemid];
 				pl2 = pl2->next;
@@ -172,6 +174,7 @@ int alalloydmat(cluster **clusters,int *** distarray,int clus,int num){
 		(*clusters)[k].sumdist = tempmin;
 		(*clusters)[k].medid = tempid;
 	}
+	/**an pragmatopoithei allagi adeiazei ta clusters gia na gemisoun stin sinexeia */
 	if (flag == 1){
 		for(i = 0;i<clus;i++){
 			for(j = 0;j<(*clusters)[i].idcount;j++){
@@ -186,35 +189,60 @@ int alalloydmat(cluster **clusters,int *** distarray,int clus,int num){
 	return flag;
 }
 
-int claransmat(cluster **clusters,int *** distarray,int clus,int num,int s,int q){
-	int zeugaria[q][2];
+/**Update CLARANS**/
+int claransmat(cluster **clusters,double *** distarray,int clus,int num,int s,int q){
 	int flag = 0;
-	int x1, x2;
-	int xx = (clus*num) - 1;
+	int x1;
+	int bound = (clus*num) - 1;
 	int z1, z2, i,j;
 	item	*pl1=NULL;
-	int tempdist;
-	int unitemp;
+	int tempdist, clusdist,bestdistfroms;
+	int temptotaldist = 0;
+	int neardist, dist, previd, unitemp;
+	int tempmed[clus], bestfroms[clus];
+	/**arxikopoiiseis*/
+	for (j=0; j<clus; j++){
+		tempmed[j] = (*clusters)[j].medid;
+		bestfroms[j] = (*clusters)[j].medid;		
+		temptotaldist += (*clusters)[j].sumdist;
+	}
+	clusdist = (bestdistfroms = temptotaldist);
+	/** gia kathe s elegxei q zeygaria */
 	for(z1=0; z1<s; z1++){ 
 		for(z2=0; z2<q; z2++){
-			unitemp = getUniformInt(0,xx);
-			x1 = (zeugaria[z2][0] = unitemp%clus);
-			x2 = (zeugaria[z2][1] = floor(unitemp/clus));
-			//printf(" zeugari[%d] %d - %d\n", z2 ,		zeugaria[z2][0],		zeugaria[z2][1]);
-			//for(i=0; i < (*clusters)[x1].idcount ; i++){
-				pl1 = (*clusters)[x1].head;
-				tempdist=0;
-				for(j=0; j<(*clusters)[x1].idcount; j++){
-					tempdist += (*distarray)[x2][pl1->itemid];
-					pl1 = pl1->next;					
+			/**dialegei tixaia to zeugos (clusterid, pointid)*/
+			unitemp = getUniformInt(0,bound);
+			x1 = unitemp%clus;
+			previd = tempmed[x1];
+			tempmed[x1] = floor(unitemp/clus);
+			tempdist = 0;
+			/**afou ekane to swap ipologizei to neo sinoliko costos tou clustering*/
+			for(i=0; i<num; i++){
+				neardist = RAND_MAX;
+				for (j=0; j<clus; j++){
+						if(((*distarray)[i][tempmed[j]]) < neardist)
+							dist = (*distarray)[i][tempmed[j]];			
 				}
-				if (tempdist < ((*clusters)[x1].sumdist)){
-					(*clusters)[x1].medid = x2;
-					(*clusters)[x1].sumdist = tempdist;
-					flag = 1;
-				}
-			//}
+				tempdist += dist;	
+			}
+			/**an to sinoliko kostos einai mikrotero, to krataei, ean den einai "akironei" tin allagi*/
+			if(tempdist < temptotaldist)
+				temptotaldist = tempdist;
+			else
+				tempmed[x1] = previd;
 		}
+		/**an oi allages poy eginan dinoyn mikrotero kostos apo tis allages se proigoumeno s, tote tis krataei*/
+		if(temptotaldist < bestdistfroms){
+			bestdistfroms = temptotaldist;
+			for (i=0; i<clus; i++)
+				bestfroms[i] = tempmed[i];
+		}
+	}
+	/**an to kalitero apotelesma poy edosan oi s epanalipseis einai kalitero apo auto poy eixame */
+	if(bestdistfroms < clusdist){
+		flag = 1;
+		for (i=0; i<clus; i++)
+				(*clusters)[i].medid = bestfroms[i];
 	}
 	if (flag == 1){
 		for(i = 0;i<clus;i++){
@@ -230,8 +258,8 @@ int claransmat(cluster **clusters,int *** distarray,int clus,int num,int s,int q
 	return flag;
 }
 
-
-double silhouettes(cluster **clusters, int ***distarray, int clus, char *output){
+/**evaluation method silhouettes */
+double silhouettes(cluster **clusters, double ***distarray, int clus, char *output){
 	item *pl1=NULL;
 	item *pl2=NULL;	
 	double totdis=0;
@@ -269,7 +297,6 @@ double silhouettes(cluster **clusters, int ***distarray, int clus, char *output)
 				}
 
 				tempavd = btempsum / ((*clusters)[z1].idcount);
-					//			printf("btempsum is %f and count is %d and tempavd is %f\n", btempsum,(*clusters)[z1].idcount, tempavd);
 				if(tempavd < minavd){
 					minavd = tempavd;
 					nearcid = z1;
@@ -291,6 +318,8 @@ double silhouettes(cluster **clusters, int ***distarray, int clus, char *output)
 	return (totdis/clus);
 }
 
+
+/**sinartisi arxikopoiisis gia ta cluster*/
 void clustinitialize(cluster **clusters,int** tableinit,int clus ){
 	int i;
 	
@@ -302,6 +331,7 @@ void clustinitialize(cluster **clusters,int** tableinit,int clus ){
 	
 }
 
+/**sinartisi free gia ta cluster*/
 void freecluster(cluster **clusters,int clus ){
 	int i,j;
 	item *pl1=NULL;

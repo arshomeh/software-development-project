@@ -1,19 +1,19 @@
 #include "../headers.h"
 
-int geteucdata(char* data,float *** eucdata,int num,int dim){
+int geteucdata(char* data,double *** eucdata,int num,int dim){
 	int i;
 	int j;
 	char XXX[SIZEofBUFF];
 	FILE* fp;
 	fp = fopen(data,"r");
-	if(((*eucdata)= malloc(num * sizeof(float*))) == NULL){
+	if(((*eucdata)= malloc(num * sizeof(double*))) == NULL){
 		perror("1:");
 		exit(4);
 	}
 	fscanf(fp, "%s %s %s %s",XXX,XXX,XXX,XXX);
 	for(i = 0;i < num;i++){
 		fscanf(fp, "%s",XXX);
-		if(((*eucdata)[i] =  malloc(dim * sizeof(float))) == NULL){
+		if(((*eucdata)[i] =  malloc(dim * sizeof(double))) == NULL){
 				printf("\nj is -->%d || i is -->%d\n",j,i);
 				perror("2:");
 				exit(4);
@@ -48,9 +48,9 @@ int getdim(char* data){
 	return dim;
 }
 
-float compEucDist(float* p, float *v,int dim){
-	float sum = 0;
-	float EucDist;
+double compEucDist(double* p, double *v,int dim){
+	double sum = 0;
+	double EucDist;
 	int i = 0;
 	for (i = 0;i<dim;i++){
 		sum += pow((p[i]-v[i]),2);
@@ -59,7 +59,7 @@ float compEucDist(float* p, float *v,int dim){
 }
 
 /**k-means++ initialization method*/
-void pluspluseuc(float ***eucdata, int **kinit, int num, int clust,int dim){
+int pluspluseuc(double ***eucdata, int **kinit, int num, int clust,int dim){
 	
 	int i,j,k,l,flag0=0;
 	int x;
@@ -108,11 +108,12 @@ void pluspluseuc(float ***eucdata, int **kinit, int num, int clust,int dim){
 			}
 		}while(flag0 == 1);
 	}	
+	return 1;
 }
 
 
 /**PAM assignment for Matrix space**/
-void asseuc(cluster **clusters,float ***eucdata,int clus,int num,int dim){
+int asseuc(cluster **clusters,double ***eucdata,int clus,int num,int dim){
 	int i,j,x;
 	int tempdist,tempid;
 	for (j=0;j<clus;j++){
@@ -130,11 +131,11 @@ void asseuc(cluster **clusters,float ***eucdata,int clus,int num,int dim){
 		(*clusters)[tempid].sumdist += tempdist;
 		(*clusters)[tempid].idcount ++;
 	}
-	return;	
+	return 1;	
 }
 
 /**Update a la Lloyd’s**/
-int alalloydeuc(cluster **clusters,float ***eucdata,int clus,int num,int dim){
+int alalloydeuc(cluster **clusters,double ***eucdata,int clus,int num,int dim){
 	item	*pl1=NULL;
 	item	*pl2=NULL;
 	int i,j,k,tempsum=0, tempmin, tempid;
@@ -174,34 +175,60 @@ int alalloydeuc(cluster **clusters,float ***eucdata,int clus,int num,int dim){
 	return flag;
 }
 
-int claranseuc(cluster **clusters,float ***eucdata,int clus,int num,int s,int q,int dim){
-	int zeugaria[q][2];
-	int flag = 0;
-	int x1, x2;
-	int xx = (clus*num) - 1;
+int claranseuc(cluster **clusters,double ***eucdata,int clus,int num,int s,int q,int dim){
+	
+		int flag = 0;
+	int x1;
+	int bound = (clus*num) - 1;
 	int z1, z2, i,j;
 	item	*pl1=NULL;
-	int tempdist;
-	int unitemp;
-	for(z1=0; z1<s; z1++){
-		// printf("ss\n");
+	int tempdist, clusdist,bestdistfroms;
+	int temptotaldist = 0;
+	int neardist, dist, previd, unitemp;
+	int tempmed[clus], bestfroms[clus];
+	/**arxikopoiiseis*/
+	for (j=0; j<clus; j++){
+		tempmed[j] = (*clusters)[j].medid;
+		bestfroms[j] = (*clusters)[j].medid;		
+		temptotaldist += (*clusters)[j].sumdist;
+	}
+	clusdist = (bestdistfroms = temptotaldist);
+	/** gia kathe s elegxei q zeygaria */
+	for(z1=0; z1<s; z1++){ 
 		for(z2=0; z2<q; z2++){
-			unitemp = getUniformInt(0,xx);
-			x1 = (zeugaria[z2][0] = unitemp%clus);
-			x2 = (zeugaria[z2][1] = floor(unitemp/clus));
-			pl1 = (*clusters)[x1].head;
-			tempdist=0;			
-			//printf(" zeugari[%d] %d - %d\n", z2 ,		zeugaria[z2][0],		zeugaria[z2][1]);
-			for(i=0; i < (*clusters)[x1].idcount ; i++){
-				tempdist += compEucDist((*eucdata)[x2],(*eucdata)[pl1->itemid],dim);
-				pl1 = pl1->next;	
-				if (tempdist < ((*clusters)[x1].sumdist)){
-					(*clusters)[x1].medid = x2;
-					(*clusters)[x1].sumdist = tempdist;
-					flag = 1;
+			/**dialegei tixaia to zeugos (clusterid, pointid)*/
+			unitemp = getUniformInt(0,bound);
+			x1 = unitemp%clus;
+			previd = tempmed[x1];
+			tempmed[x1] = floor(unitemp/clus);
+			tempdist = 0;
+			/**afou ekane to swap ipologizei to neo sinoliko costos tou clustering*/
+			for(i=0; i<num; i++){
+				neardist = RAND_MAX;
+				for (j=0; j<clus; j++){
+						if((compEucDist((*eucdata)[i],(*eucdata)[tempmed[j]],dim) < neardist))
+							dist = compEucDist((*eucdata)[i],(*eucdata)[tempmed[j]],dim);			
 				}
+				tempdist += dist;	
 			}
+			/**an to sinoliko kostos einai mikrotero, to krataei, ean den einai "akironei" tin allagi*/
+			if(tempdist < temptotaldist)
+				temptotaldist = tempdist;
+			else
+				tempmed[x1] = previd;
 		}
+		/**an oi allages poy eginan dinoyn mikrotero kostos apo tis allages se proigoumeno s, tote tis krataei*/
+		if(temptotaldist < bestdistfroms){
+			bestdistfroms = temptotaldist;
+			for (i=0; i<clus; i++)
+				bestfroms[i] = tempmed[i];
+		}
+	}
+	/**an to kalitero apotelesma poy edosan oi s epanalipseis einai kalitero apo auto poy eixame */
+	if(bestdistfroms < clusdist){
+		flag = 1;
+		for (i=0; i<clus; i++)
+				(*clusters)[i].medid = bestfroms[i];
 	}
 	if (flag == 1){
 		for(i = 0;i<clus;i++){

@@ -9,7 +9,7 @@ item *CreateItem(item *p)
 item *InsertItem(item *p, int w)
 {
 	if ( p==NULL ) {
-		p = (item *) malloc (sizeof(item)+1);
+		p = calloc (1,sizeof(item));
 		p->itemid = w;
 		p->next = NULL;
 		}
@@ -24,13 +24,14 @@ item *DeleteItem(item *p, int w)
 {	item	*aux=NULL, *throwaway=NULL;
 
 	aux=p;
-	if (aux==NULL) 
+	if (aux==NULL){
 		return (NULL);
+	}
 	else {
 		if ( aux->itemid == w){
 			throwaway=aux;
 			aux = aux->next;
-			free (throwaway) ;
+			free (throwaway);
 			throwaway = NULL;
 			return(aux);
 			}

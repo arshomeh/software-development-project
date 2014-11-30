@@ -2,27 +2,28 @@
 
 int eucMain(char* data,char * config,char *output,int flag,int flagcomp){
 	int num,dim;
-	FILE* fp;
-	float **eucdata;
-	float **distance;
-	fp = fopen("test.txt","a+");
+	double totdis;
+	int flagi, flaga, flagu,flag2;
+	double **eucdata;
+	double **distance;
+	int *plusinit, *conceninit;
+	configuration c;
+	cluster *clusters;
 	num = numberOfitems(data,flag);
 	printf("num is %d\n",num);
 	dim = getdim(data);
 	printf("dim is %d\n",dim);
+	
+	c = setConfig(config,num);
+	clusters = calloc(c.Clasters,sizeof(cluster));
+	
 	geteucdata(data,&eucdata,num,dim);
 	int i,j;
-	for(i = 0;i<num;i++){
-		 for(j = 0;j <dim;j++){
-			fprintf(fp,"%f ",eucdata[i][j]);
-		}
-		fprintf(fp,"\n");
-	}
-	distance = malloc(num* sizeof(float*));
 	
+	distance = malloc(num* sizeof(double*));
 	for(j = 0;j<num; j++)
-		distance[j] = malloc(num* sizeof(float));
-		
+		distance[j] = malloc(num* sizeof(double));
+			
 	for(i = 0;i<num;i++){
 		distance[i][i] = 0;
 		for(j = i+1;j<num;j++){
@@ -30,14 +31,59 @@ int eucMain(char* data,char * config,char *output,int flag,int flagcomp){
 			distance[j][i] = distance[i][j];
 		}
 	}
+	/**K-means++ Initialization**/
+	flagi = pluspluseuc(&eucdata, &plusinit, num, c.Clasters,dim);
 	
-	for(i = 0;i<num;i++){
-		for(j = 0;j<num;j++){
-			fprintf(fp,"%f ",distance[i][j]);
-		}
-		fprintf(fp,"\n");
-	}
+	/**PAM Assignment - A la Lloyd's Update**/
+	flag2 = 0;
+	flagu = 1;
+	clustinitialize(&clusters,&plusinit,c.Clasters);	
+	do{
+		flaga = asseuc(&clusters,&eucdata,c.Clasters,num,dim);
+		flag2 = alalloydeuc(&clusters,&eucdata,c.Clasters,num,dim);
+		
+	}while (flag2==1);
+	totdis = silhouettes(&clusters,&distance,c.Clasters, output);
+	printclusters(&clusters,flagcomp,output,flagi,flaga,flaga,c.Clasters,200.00,totdis);
+	freecluster(&clusters,c.Clasters);
+	/**PAM Assignment - CLARANS Update*/
+	flag2 = 0;
+	flagu = 2;
+	clustinitialize(&clusters,&plusinit,c.Clasters);
+	do{
+		flaga = asseuc(&clusters,&eucdata,c.Clasters,num,dim);
+		flag2 = claranseuc(&clusters,&eucdata,c.Clasters,num,c.ClaransIterations,c.ClaransFraction,dim);
+	}while (flag2==1);
+	totdis = silhouettes(&clusters,&distance,c.Clasters, output);
+	printclusters(&clusters,flagcomp,output,flagi,flaga,flagu,c.Clasters,200.00,totdis);
+	freecluster(&clusters,c.Clasters);
 	
-	fclose(fp);
+	/**Concentrate Initialization**/
+	flagi = concint(&distance, &conceninit, num, c.Clasters);
+	
+	/**PAM Assignment - A la Lloyd's Update**/
+	flag2 = 0;
+	flagu = 1;	
+	clustinitialize(&clusters,&conceninit,c.Clasters);	
+	do{
+		flaga = asseuc(&clusters,&eucdata,c.Clasters,num,dim);
+		flag2 = alalloydeuc(&clusters,&eucdata,c.Clasters,num,dim);	
+	}while (flag2==1);
+	totdis = silhouettes(&clusters,&distance,c.Clasters, output);
+	printclusters(&clusters,flagcomp,output,flagi,flaga,flagu,c.Clasters,200.00,totdis);
+	freecluster(&clusters,c.Clasters);
+
+	/**PAM Assignment - CLARANS Update**/
+	flag2 = 0;
+	flagu = 2;
+	clustinitialize(&clusters,&conceninit,c.Clasters);
+	do{
+		flaga =asseuc(&clusters,&eucdata,c.Clasters,num,dim);
+		flag2 = claranseuc(&clusters,&eucdata,c.Clasters,num,c.ClaransIterations,c.ClaransFraction,dim);
+	}while (flag2==1);
+	totdis = silhouettes(&clusters,&distance,c.Clasters, output);
+	printclusters(&clusters,flagcomp,output,flagi,flaga,flagu,c.Clasters,200.00,totdis);
+	freecluster(&clusters,c.Clasters);
+	
 	return 0;
 }

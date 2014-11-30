@@ -3,15 +3,15 @@
 int gethamdata(char* data,char *** hamdata,int num){
 	char XXX[SIZEofBUFF];
 	char binary[SIZE];
-	char line [SIZE*2];
+	//char line [SIZE*2];
 	int i = 0;
 	FILE* fp;
 	fp = fopen(data,"r");
-	(*hamdata)= malloc(num * sizeof(char *));
-	
-	while ( fgets ( line, sizeof line, fp ) != NULL ) { /* read a line */
+	(*hamdata)= malloc(num * sizeof(char*));
+	fscanf(fp, "%s %s", XXX, XXX);
+	while (i<num){//( fgets ( line, sizeof line, fp ) != NULL ) { /* read a line */
 			fscanf(fp, "%s %s", XXX, binary); 
-			(*hamdata)[i] =  malloc(SIZE * sizeof(char *));
+			(*hamdata)[i] =  malloc(SIZE * sizeof(char));
 			strcpy((*hamdata)[i],binary);
 			i++;
 	}
@@ -33,7 +33,7 @@ int hamdist(char* a, int nobits, char* b) {
 }
 
 /**k-means++ initialization method*/
-void plusplusham(char ***hamdata, int **kinit, int num, int clust,int nobit){
+int plusplusham(char ***hamdata, int **kinit, int num, int clust,int nobit){
 	
 	int i,j,k,l,flag0=0;
 	int x;
@@ -81,12 +81,13 @@ void plusplusham(char ***hamdata, int **kinit, int num, int clust,int nobit){
 				}
 			}
 		}while(flag0 == 1);
-	}	
+	}
+	return 1;	
 }
 
 
 /**PAM assignment for Matrix space**/
-void assham(cluster **clusters,char ***hamdata,int clus,int num,int nobits){
+int assham(cluster **clusters,char ***hamdata,int clus,int num,int nobits){
 	int i,j,x;
 	int tempdist,tempid;
 	for (j=0;j<clus;j++){
@@ -104,7 +105,7 @@ void assham(cluster **clusters,char ***hamdata,int clus,int num,int nobits){
 		(*clusters)[tempid].sumdist += tempdist;
 		(*clusters)[tempid].idcount ++;
 	}
-	return;	
+	return 1;	
 }
 
 /**Update a la Lloyd’s**/
@@ -149,33 +150,59 @@ int alalloydham(cluster **clusters,char ***hamdata,int clus,int num,int nobits){
 }
 
 int claransham(cluster **clusters,char *** hamdata,int clus,int num,int s,int q,int nobits){
-	int zeugaria[q][2];
+	
 	int flag = 0;
-	int x1, x2;
-	int xx = (clus*num) - 1;
+	int x1;
+	int bound = (clus*num) - 1;
 	int z1, z2, i,j;
 	item	*pl1=NULL;
-	int tempdist;
-	int unitemp;
-	for(z1=0; z1<s; z1++){
-		// printf("ss\n");
+	int tempdist, clusdist,bestdistfroms;
+	int temptotaldist = 0;
+	int neardist, dist, previd, unitemp;
+	int tempmed[clus], bestfroms[clus];
+	/**arxikopoiiseis*/
+	for (j=0; j<clus; j++){
+		tempmed[j] = (*clusters)[j].medid;
+		bestfroms[j] = (*clusters)[j].medid;		
+		temptotaldist += (*clusters)[j].sumdist;
+	}
+	clusdist = (bestdistfroms = temptotaldist);
+	/** gia kathe s elegxei q zeygaria */
+	for(z1=0; z1<s; z1++){ 
 		for(z2=0; z2<q; z2++){
-			unitemp = getUniformInt(0,xx);
-			x1 = (zeugaria[z2][0] = unitemp%clus);
-			x2 = (zeugaria[z2][1] = floor(unitemp/clus));
-			pl1 = (*clusters)[x1].head;
-			tempdist=0;			
-			//printf(" zeugari[%d] %d - %d\n", z2 ,		zeugaria[z2][0],		zeugaria[z2][1]);
-			for(i=0; i < (*clusters)[x1].idcount ; i++){
-				tempdist += hamdist((*hamdata)[x2],nobits,(*hamdata)[pl1->itemid]);
-				pl1 = pl1->next;	
+			/**dialegei tixaia to zeugos (clusterid, pointid)*/
+			unitemp = getUniformInt(0,bound);
+			x1 = unitemp%clus;
+			previd = tempmed[x1];
+			tempmed[x1] = floor(unitemp/clus);
+			tempdist = 0;
+			/**afou ekane to swap ipologizei to neo sinoliko costos tou clustering*/
+			for(i=0; i<num; i++){
+				neardist = RAND_MAX;
+				for (j=0; j<clus; j++){
+						if((hamdist((*hamdata)[i],nobits,(*hamdata)[tempmed[j]]) < neardist))
+							dist = hamdist((*hamdata)[i],nobits,(*hamdata)[tempmed[j]]);			
+				}
+				tempdist += dist;	
 			}
-			if (tempdist < ((*clusters)[x1].sumdist)){
-				(*clusters)[x1].medid = x2;
-				(*clusters)[x1].sumdist = tempdist;
-				flag = 1;
-			}
+			/**an to sinoliko kostos einai mikrotero, to krataei, ean den einai "akironei" tin allagi*/
+			if(tempdist < temptotaldist)
+				temptotaldist = tempdist;
+			else
+				tempmed[x1] = previd;
 		}
+		/**an oi allages poy eginan dinoyn mikrotero kostos apo tis allages se proigoumeno s, tote tis krataei*/
+		if(temptotaldist < bestdistfroms){
+			bestdistfroms = temptotaldist;
+			for (i=0; i<clus; i++)
+				bestfroms[i] = tempmed[i];
+		}
+	}
+	/**an to kalitero apotelesma poy edosan oi s epanalipseis einai kalitero apo auto poy eixame */
+	if(bestdistfroms < clusdist){
+		flag = 1;
+		for (i=0; i<clus; i++)
+				(*clusters)[i].medid = bestfroms[i];
 	}
 	if (flag == 1){
 		for(i = 0;i<clus;i++){

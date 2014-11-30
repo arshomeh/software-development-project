@@ -1,0 +1,52 @@
+Algorithm: I1A1U1, x:{1,2}
+Initialization method K-means++ [Park-Jun]
+Assignment method PAM
+Update method "A la Lloyds" [Park-Jun]
+
+CLUSTER-0 {size:192 medoid(id):204}
+CLUSTER-1 {size:299 medoid(id):637}
+CLUSTER-2 {size:194 medoid(id):396}
+CLUSTER-3 {size:268 medoid(id):172}
+Clustering time: 200.000000 seconds
+Average dissimilarity given by Silhouettes method:  {s[0]=0.008352, s[1]=0.004845, s[2]=0.011641, s[3]=0.009994, }
+Total average dissimilarity of Dataset is 0.008708
+
+Algorithm: I1A1U2, x:{1,2}
+Initialization method K-means++ [Park-Jun]
+Assignment method PAM
+Update method CLARANS [Ng-Han]
+
+CLUSTER-0 {size:151 medoid(id):78}
+CLUSTER-1 {size:311 medoid(id):680}
+CLUSTER-2 {size:266 medoid(id):389}
+CLUSTER-3 {size:225 medoid(id):171}
+Clustering time: 200.000000 seconds
+Average dissimilarity given by Silhouettes method:  {s[0]=0.125590, s[1]=0.038436, s[2]=0.058277, s[3]=0.052029, }
+Total average dissimilarity of Dataset is 0.068583
+
+Algorithm: I2A1U1, x:{1,2}
+Initialization method Concentrate [Arthur-Vassilvitskii]
+Assignment method PAM
+Update method "A la Lloyds" [Park-Jun]
+
+CLUSTER-0 {size:90 medoid(id):312}
+CLUSTER-1 {size:337 medoid(id):172}
+CLUSTER-2 {size:379 medoid(id):417}
+CLUSTER-3 {size:147 medoid(id):204}
+Clustering time: 200.000000 seconds
+Average dissimilarity given by Silhouettes method:  {s[0]=0.330880, s[1]=0.017378, s[2]=0.021558, s[3]=0.023630, }
+Total average dissimilarity of Dataset is 0.098362
+
+Algorithm: I2A1U2, x:{1,2}
+Initialization method Concentrate [Arthur-Vassilvitskii]
+Assignment method PAM
+Update method CLARANS [Ng-Han]
+
+CLUSTER-0 {size:386 medoid(id):51}
+CLUSTER-1 {size:250 medoid(id):186}
+CLUSTER-2 {size:283 medoid(id):417}
+CLUSTER-3 {size:34 medoid(id):537}
+Clustering time: 200.000000 seconds
+Average dissimilarity given by Silhouettes method:  {s[0]=0.096671, s[1]=0.030883, s[2]=0.011562, s[3]=0.056447, }
+Total average dissimilarity of Dataset is 0.048891
+

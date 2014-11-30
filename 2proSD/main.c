@@ -103,7 +103,6 @@ int main (int argc, char** argv){  //Tha einai tis morfis: ./medoids –d <input
 	}
 	if(flag == 1){
 		//hamming
-		printf("lala\n");
 		hamMain(data,config,output,flag,flagcomp);
 	}
 	else if(flag == 2){
