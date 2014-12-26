@@ -12,7 +12,7 @@
 #include "mainfuns.h"
 #include "cluster.h"
 #include "generalfuns.h"
-
+#include "algorithms.h"
 #include "./Ham/hamfuns.h"
 #include "./Euc/eucfuns.h"
 #include "./Mat/matfuns.h"

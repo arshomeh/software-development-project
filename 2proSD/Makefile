@@ -2,9 +2,9 @@
 # In order to execute this "Makefile" just type "make"
 #
 
-OBJS 	= main.o generalfuns.o aHamMain.o aEucMain.o aMatMain.o cluster.o ./Ham/hamfuns.o ./Euc/eucfuns.o ./Mat/matfuns.o 
-SOURCE	= main.c generalfuns.c aHamMain.c aEucMain.c aMatMain.c cluster.c ./Ham/hamfuns.c ./Euc/eucfuns.c ./Mat/matfuns.c
-HEADER  = headers.h defines.h mainfuns.h generalfuns.h cluster.h ./Ham/hamfuns.h ./Euc/eucfuns.h ./Mat/matfuns.h
+OBJS 	= main.o generalfuns.o aHamMain.o aEucMain.o aMatMain.o cluster.o algorithms.o ./Ham/hamfuns.o ./Euc/eucfuns.o ./Mat/matfuns.o 
+SOURCE	= main.c generalfuns.c aHamMain.c aEucMain.c aMatMain.c cluster.c algorithms.c ./Ham/hamfuns.c ./Euc/eucfuns.c ./Mat/matfuns.c
+HEADER  = headers.h defines.h mainfuns.h generalfuns.h cluster.h algorithms.h ./Ham/hamfuns.h ./Euc/eucfuns.h ./Mat/matfuns.h
 OUT  	= medoids
 CC	= gcc
 FLAGS   = -g -c 
@@ -33,6 +33,9 @@ aMatMain.o: aMatMain.c
 
 cluster.o: cluster.c
 	$(CC) $(FLAGS)  cluster.c $(LDFLAGS)
+
+algorithms.o: algorithms.c
+	$(CC) $(FLAGS)  algorithms.c $(LDFLAGS)
 
 hamfuns.o: /Ham/hamfuns.c
 	$(CC) $(FLAGS)  /Ham/hamfuns.c $(LDFLAGS)

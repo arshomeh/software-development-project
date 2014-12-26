@@ -34,8 +34,6 @@ configuration setConfig(char* config,int num){
 				ch = fgetc(fp);
 			}
 			if(flag == 1){
-				//printf("num is %s\n",number);
-				//printf("temp is %s\n",temp);
 				if(strcmp(temp,"number_of_clusters:") == 0){
 					c.Clasters = atoi(number);
 				}
@@ -218,3 +216,92 @@ void printclusters(cluster **clusters,int complarga, char *filep, int iflag, int
 	fclose(fp);
 }
 
+/**sinartisi arxikopoiisis gia ta cluster*/
+void clustinitialize(cluster **clusters,int** tableinit,int clus ){
+	int i;
+	
+	for(i = 0;i<clus;i++){		
+		(*clusters)[i].medid = (*tableinit)[i];
+		(*clusters)[i].sumdist = 0;
+		(*clusters)[i].idcount = 0;
+	}
+	
+}
+
+/**sinartisi free gia ta cluster*/
+void freecluster(cluster **clusters,int clus ){
+	int i,j;
+	item *pl1=NULL;
+	for(i = 0;i<clus;i++){
+		for(j = 0;j<(*clusters)[i].idcount;j++){
+			pl1 = (*clusters)[i].head;
+			(*clusters)[i].head = DeleteItem((*clusters)[i].head, pl1->itemid);
+			pl1 = pl1->next;
+		}		
+	}
+}
+
+
+double computecost(cluster **clusters,double ***distarray,double ***eucdata, char*** hamdata,int clus, int num,int nobits, int dim, int flagt,int m, int t){
+	int j,k;
+	//FILE* fp23;	
+	//fp23=fopen("testcost","w+");
+	double dist=0.0;
+	item	*pl1=NULL;	
+	for(k=0; k<clus; k++){
+		if(k == m){
+			pl1 = (*clusters)[k].head;
+			for(j=0; j<(*clusters)[k].idcount; j++){
+					/** if dist(i,t) >= dist(i,c'(i))*/
+				if(flagt == 1){
+					if(((*distarray)[pl1->itemid][t]) >= (((*distarray)[pl1->itemid][(*clusters)[pl1->secondid].medid])))
+						dist += ((*distarray)[pl1->itemid][(*clusters)[pl1->secondid].medid])-(pl1->distmed);//dist(i,c'(i))-dist(i,m)
+					else 
+						dist += ((*distarray)[pl1->itemid][t]) - (pl1->distmed);//dist(i,t)-dist(i,m)
+				}
+				else if(flagt == 2){
+					if(compEucDist((*eucdata)[pl1->itemid],(*eucdata)[t],dim) >= compEucDist((*eucdata)[pl1->itemid],(*eucdata)[(*clusters)[pl1->secondid].medid],dim))
+						dist += (compEucDist((*eucdata)[pl1->itemid],(*eucdata)[(*clusters)[pl1->secondid].medid],dim))-(pl1->distmed);//dist(i,c'(i))-dist(i,m)
+					else 
+						dist += compEucDist((*eucdata)[pl1->itemid],(*eucdata)[t],dim) - (pl1->distmed);//dist(i,t)-dist(i,m)
+				}
+				else if(flagt == 3){
+					if(hamdist((*hamdata)[pl1->itemid],nobits,(*hamdata)[t]) >= hamdist((*hamdata)[pl1->itemid],nobits,(*hamdata)[(*clusters)[pl1->secondid].medid]))
+						dist += hamdist((*hamdata)[pl1->itemid],nobits,(*hamdata)[(*clusters)[pl1->secondid].medid])-(pl1->distmed);//dist(i,c'(i))-dist(i,m)
+					else 
+						dist += hamdist((*hamdata)[pl1->itemid],nobits,(*hamdata)[t]) - (pl1->distmed);//dist(i,t)-dist(i,m)
+				}
+			}
+			//fprintf(fp23,"-- dist is %f\n",dist);
+			pl1 = pl1->next;
+		}
+		else{
+			pl1 = (*clusters)[k].head;
+			for(j=0; j<(*clusters)[k].idcount; j++){
+					/** if dist(i,t) >= dist(i,c'(i))*/
+				if(flagt == 1){
+					if(((*distarray)[pl1->itemid][t]) >= (((*distarray)[pl1->itemid][(*clusters)[pl1->secondid].medid])))
+						dist += 0; //add nothing
+					else 
+						dist += ((*distarray)[pl1->itemid][t]) -((*distarray)[pl1->itemid][(*clusters)[pl1->secondid].medid]);//dist(i,t)-dist(i,c'(i))
+				}
+				else if(flagt == 2){
+					if(compEucDist((*eucdata)[pl1->itemid],(*eucdata)[t],dim) >= (compEucDist((*eucdata)[pl1->itemid],(*eucdata)[(*clusters)[pl1->secondid].medid],dim)))
+						dist += 0; //add nothing
+					else 
+						dist += compEucDist((*eucdata)[pl1->itemid],(*eucdata)[t],dim) -compEucDist((*eucdata)[pl1->itemid],(*eucdata)[(*clusters)[pl1->secondid].medid],dim);//dist(i,t)-dist(i,c'(i))
+				}
+				else if(flagt == 3){
+					if(hamdist((*hamdata)[pl1->itemid],nobits,(*hamdata)[t]) >= (hamdist((*hamdata)[pl1->itemid],nobits,(*hamdata)[(*clusters)[pl1->secondid].medid])))
+						dist += 0;//add nothing
+					else 
+						dist += hamdist((*hamdata)[pl1->itemid],nobits,(*hamdata)[t]) -hamdist((*hamdata)[pl1->itemid],nobits,(*hamdata)[(*clusters)[pl1->secondid].medid]);//dist(i,t)-dist(i,c'(i))
+				}
+			}
+			pl1 = pl1->next;
+			//fprintf(fp23,"++ dist is %f\n",dist);						
+		}
+	}
+	//fclose(fp23);
+	return dist;
+}

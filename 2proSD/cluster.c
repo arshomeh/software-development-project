@@ -6,15 +6,18 @@ item *CreateItem(item *p)
 	return(p);
 }
 
-item *InsertItem(item *p, int w)
+item *InsertItem(item *p, int w, int j, double t,double x)
 {
 	if ( p==NULL ) {
 		p = calloc (1,sizeof(item));
 		p->itemid = w;
+		p->secondid = j;
+		p->distsec = t;
+		p->distmed = x;
 		p->next = NULL;
 		}
 	else 	{
-		p->next = InsertItem(p->next, w);
+		p->next = InsertItem(p->next, w, j, t,x);
 		}
 	return(p);
 }

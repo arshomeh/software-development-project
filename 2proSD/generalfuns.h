@@ -18,5 +18,7 @@ int printData(char* data,int flag);
 int getUniformInt(int rStart, int rEnd);
 double getUniformDouble(double rStart, double rEnd);
 void printclusters(cluster **clusters,int complarga, char *filep, int iflag, int aflag, int uflag,int clus,double ttime, double totdis);
-
+double computecost(cluster **clusters,double ***distarray,double ***eucdata, char*** hamdata,int clus, int num,int nobits, int dim, int flagt,int m, int t);
+void freecluster(cluster **clusters,int clus);
+void clustinitialize(cluster **clusters,int** tableinit,int clus );
 #endif
